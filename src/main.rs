@@ -37,6 +37,7 @@ fn main() -> iced::Result {
 }
 
 struct App {
+    is_prev_playing: bool,
     mode: ViewMode,
     config: Vec<Config>,
     sink: Sink,
@@ -52,8 +53,8 @@ impl Default for App {
         let sink = audio::new_sink();
         let config = Config::new("./config.toml");
         let current_pos = 0;
-        let mode = ViewMode::Normal;
-        let lang = Lang::Chinese;
+        let mode = ViewMode::Play;
+        let lang = Lang::All;
 
         let source_path = &config[current_pos].source_path;
         sink.append(audio::new_source(source_path));
@@ -74,6 +75,7 @@ impl Default for App {
         // audio::sample(audio::new_source(source_path));
 
         Self {
+            is_prev_playing: true,
             mode,
             config,
             sink,
@@ -148,13 +150,14 @@ impl App {
     //     self.current_source = audio::new_source(source_path);
     // }
 
-    fn toggle_play(&self) {
+    fn toggle_play(&mut self) {
         let sink = &self.sink;
         if sink.is_paused() {
             sink.play();
         } else {
             sink.pause()
         }
+        self.is_prev_playing = !sink.is_paused();
     }
 
     fn set_volume(&self, relative_factor: i8) {
@@ -171,7 +174,8 @@ impl App {
     fn toggle_lang(&mut self) {
         self.lang = match self.lang {
             Lang::Chinese => Lang::Japanese,
-            Lang::Japanese => Lang::Chinese,
+            Lang::Japanese => Lang::All,
+            Lang::All => Lang::Chinese,
             _ => unimplemented!(),
         }
     }
@@ -218,7 +222,14 @@ impl Application for App {
                 self.sink.skip_one()
             }
             // Message::PrevSong => self.prev_song(),
-            Message::SwitchView(mode) => self.switch_view(mode),
+            Message::SwitchView(mode) => {
+                if mode == ViewMode::Play && self.is_prev_playing {
+                    self.sink.play()
+                } else {
+                    self.sink.pause()
+                }
+                self.switch_view(mode)
+            }
             Message::Quit => {
                 std::process::exit(0);
             }
@@ -237,7 +248,7 @@ impl Application for App {
 
     fn view(&self) -> Element<Message> {
         match self.mode {
-            ViewMode::Normal => view::play(self),
+            ViewMode::Play => view::play(self),
             ViewMode::Help => view::help(self),
             ViewMode::ConfirmQuit => view::confirm_quit(self),
         }
@@ -246,7 +257,7 @@ impl Application for App {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ViewMode {
-    Normal,
+    Play,
     Help,
     ConfirmQuit,
 }
@@ -272,6 +283,7 @@ enum Message {
 
 #[derive(Debug, Clone)]
 enum Lang {
+    All,
     Chinese,
     Japanese,
     English,

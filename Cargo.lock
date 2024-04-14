@@ -950,6 +950,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c87e182de0887fd5361989c677c4e8f5000cd9491d6d563161a8f3a5519fc7f"
 
 [[package]]
+name = "deci-player"
+version = "0.1.0"
+dependencies = [
+ "iced",
+ "iced_aw",
+ "itertools",
+ "rfd",
+ "rodio",
+ "rustfft",
+ "serde",
+ "toml",
+]
+
+[[package]]
 name = "deranged"
 version = "0.3.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2240,20 +2254,6 @@ checksum = "9d811f3e15f28568be3407c8e7fdb6514c1cda3cb30683f15b6a1a1dc4ea14a7"
 dependencies = [
  "adler",
  "simd-adler32",
-]
-
-[[package]]
-name = "music-player"
-version = "0.1.0"
-dependencies = [
- "iced",
- "iced_aw",
- "itertools",
- "rfd",
- "rodio",
- "rustfft",
- "serde",
- "toml",
 ]
 
 [[package]]

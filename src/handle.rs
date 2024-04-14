@@ -9,7 +9,7 @@ pub fn handle_key(mode: ViewMode, key: Key<SmolStr>, modifiers: Modifiers) -> Me
     let key = key.as_ref();
 
     match mode {
-        ViewMode::Normal => handle_in_normal(key, modifiers),
+        ViewMode::Play => handle_in_normal(key, modifiers),
         ViewMode::Help => handle_in_help(key, modifiers),
         ViewMode::ConfirmQuit => handle_in_confirm_quit(key, modifiers),
     }
@@ -19,7 +19,7 @@ fn handle_in_confirm_quit(key: Key<&str>, _modifiers: Modifiers) -> Message {
     if let Key::Character(c) = key {
         match c {
             "y" => Message::Quit,
-            "n" => Message::SwitchView(ViewMode::Normal),
+            "n" => Message::SwitchView(ViewMode::Play),
             _ => Message::Nothing,
         }
     } else {
@@ -53,7 +53,7 @@ fn handle_in_normal(key: Key<&str>, _modifiers: Modifiers) -> Message {
 fn handle_in_help(key: Key<&str>, _modifiers: Modifiers) -> Message {
     if let Key::Character(c) = key {
         match c {
-            "h" => Message::SwitchView(ViewMode::Normal),
+            "h" => Message::SwitchView(ViewMode::Play),
             _ => Message::Nothing,
         }
     } else {

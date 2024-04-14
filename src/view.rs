@@ -18,7 +18,7 @@ const KEY_DESCRIPTION: &[(&str, &str)] = &[
     ("\n● 模式/播放", "\n"),
     ("h", "进入帮助页面"),
     ("[p, space]", "播放/暂停"),
-    ("t", "切换语言(中文 or 日语字幕)"),
+    ("t", "切换语言(默认双语字幕, 每次切换至中文/日语/双语)"),
     ("q", "关闭应用"),
     ("\n\n● 模式/帮助", "\n"),
     ("h", "退出帮助页面"),
@@ -26,6 +26,7 @@ const KEY_DESCRIPTION: &[(&str, &str)] = &[
     ("y", "确认"),
     ("n", "取消"),
 ];
+
 const TITLE_SIZE: u16 = 36;
 const TITLE_PADDING: u16 = 20;
 const CONTENT_SIZE: u16 = 20;
@@ -48,15 +49,29 @@ pub fn play(app: &App) -> Element<Message> {
         .style(utils::text(utils::black()));
     let status_line = status_line(app);
 
-    let lyric_1 = get_lyrics(app, Lang::Chinese).unwrap_or_default();
-    let lyric_1 = text(lyric_1).size(30).style(utils::text(utils::black()));
+    let lyric = match app.lang {
+        Lang::All => {
+            let lyric_1 = get_lyrics(app, Lang::Chinese).unwrap_or_default();
+            let lyric_1 = text(lyric_1).size(30).style(utils::text(utils::black()));
 
-    let lyric_2 = get_lyrics(app, Lang::Japanese).unwrap_or_default();
-    let lyric_2 = text(lyric_2).size(30).style(utils::text(utils::black()));
+            let lyric_2 = get_lyrics(app, Lang::Japanese).unwrap_or_default();
+            let lyric_2 = text(lyric_2).size(30).style(utils::text(utils::black()));
+            column!(lyric_1, lyric_2)
+        }
+        Lang::Chinese => {
+            let lyric = get_lyrics(app, Lang::Chinese).unwrap_or_default();
+            let lyric = text(lyric).size(30).style(utils::text(utils::black()));
+            column!(lyric)
+        }
+        Lang::Japanese => {
+            let lyric = get_lyrics(app, Lang::Japanese).unwrap_or_default();
+            let lyric = text(lyric).size(30).style(utils::text(utils::black()));
+            column!(lyric)
+        }
+        _ => unimplemented!(),
+    };
 
-    let lyric = column!(lyric_1, lyric_2)
-        .padding(40)
-        .align_items(Alignment::Center);
+    let lyric = lyric.padding(40).align_items(Alignment::Center);
 
     let total_duration = get_total_duration(app);
     let slider = Slider::new(
