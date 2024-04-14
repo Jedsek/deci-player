@@ -1,0 +1,15 @@
+[package]
+name = "deci-player"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+iced = { version = "0.12.1", default-features = false, features = ["wgpu", "image", "advanced"] }
+iced_aw = "0.8.0"
+rustfft = "6.2.0"
+rfd = "0.14.1"
+# rodio = "0.17.3"
+rodio = { git = "https://github.com/RustAudio/rodio.git" }
+toml = "0.8.12"
+serde = "*"
+itertools = "0.12.1"

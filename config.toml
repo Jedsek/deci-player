@@ -1,0 +1,17 @@
+[[music]]
+name = "アディオス"
+source_path = "./music_list/1/music_1.mp3"
+avatar = "./music_list/1/avatar.png"
+background = "./music_list/1/background.png"
+lyrics_first = "./music_list/1/zh.lrc"
+lyrics_second = "./music_list/1/jp.lrc"
+
+
+[[music]]
+name = "童游"
+source_path = "./music_list/2/music_2.mp3"
+avatar = "./music_list/2/avatar.png"
+background = "./music_list/2/background.png"
+lyrics_first = "./music_list/2/zh.lrc"
+lyrics_second = "./music_list/2/jp.lrc"
+
