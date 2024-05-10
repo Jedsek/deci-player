@@ -5,6 +5,7 @@ mod config;
 mod handle;
 mod view;
 
+use std::borrow::Cow;
 use std::time::{Duration, Instant};
 
 use audio::TheSource;
@@ -23,7 +24,7 @@ const UPDATE_INTERVAL_SEC: f32 = 0.1;
 
 fn main() -> iced::Result {
     App::run(Settings {
-        fonts: vec![include_bytes!("../MapleMono-NF-CN-Regular.ttf").into()],
+        fonts: vec![Cow::Borrowed(&include_bytes!("../MapleMono-NF-CN-Regular.ttf")[..])],
         default_font: Font::with_name("Maple Mono NF CN"),
         // fonts: vec![include_bytes!("../SarasaMonoTC-Regular.ttf").into()],
         // default_font: Font::with_name("Sarasa Mono TC"),
