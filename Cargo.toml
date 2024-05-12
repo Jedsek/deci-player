@@ -11,5 +11,6 @@ rfd = "0.14.1"
 # rodio = "0.17.3"
 rodio = { git = "https://github.com/RustAudio/rodio.git" }
 toml = "0.8.12"
-serde = "*"
+serde = { version = "1.0", features = ["derive"] }
+paste = "1.0"
 itertools = "0.12.1"

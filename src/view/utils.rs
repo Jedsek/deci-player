@@ -4,7 +4,7 @@ use iced::{
     border::Radius,
     theme::{self, Text},
     widget::{self, button, image, slider, Image},
-    Color, ContentFit, Length, Theme,
+    Border, Color, ContentFit, Length, Shadow, Theme, Vector,
 };
 
 pub fn background_image<Handle>(handle: impl Into<Handle>) -> Image<Handle> {
@@ -16,6 +16,10 @@ pub fn background_image<Handle>(handle: impl Into<Handle>) -> Image<Handle> {
 
 pub fn text(color: Color) -> Text {
     Text::Color(color)
+}
+
+pub fn transparent() -> Color {
+    Color::from_rgba8(0, 0, 0, 0.0)
 }
 
 pub fn black() -> Color {
@@ -35,7 +39,6 @@ pub fn blue() -> Color {
 }
 
 pub struct StyledSlider;
-
 impl slider::StyleSheet for StyledSlider {
     type Style = Theme;
 
@@ -66,3 +69,31 @@ impl slider::StyleSheet for StyledSlider {
         Self::active(self, style)
     }
 }
+
+pub struct StyledButton;
+impl button::StyleSheet for StyledButton {
+    type Style = Theme;
+
+    fn active(&self, style: &Self::Style) -> button::Appearance {
+        button::Appearance {
+            background: Some(iced::Background::Color(transparent())),
+            text_color: black(),
+            ..Default::default()
+        }
+    }
+}
+
+macro_rules! impl_new {
+    ($($t:ident), *) => {$(
+        paste::paste! {
+            #[allow(clippy::new_ret_no_self)]
+            impl [<Styled $t>] {
+                pub fn new() -> iced::theme::$t {
+                    iced::theme::$t::Custom(Box::new(Self))
+                }
+            }
+        }
+    )*};
+}
+
+impl_new!(Slider, Button);

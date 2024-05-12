@@ -6,7 +6,9 @@ use crate::{audio, config::Config, App, Lang, Message};
 use iced::{
     alignment::Horizontal,
     theme::{self, TextEditor},
-    widget::{column, image, radio::StyleSheet, row, text, Column, Container, ProgressBar, Slider},
+    widget::{
+        button, column, image, radio::StyleSheet, row, text, Column, Container, ProgressBar, Slider,
+    },
     Alignment, Color, Element, Length,
 };
 use iced_aw::floating_element;
@@ -19,6 +21,7 @@ const KEY_DESCRIPTION: &[(&str, &str)] = &[
     ("h", "进入帮助页面"),
     ("[p, space]", "播放/暂停"),
     ("t", "切换语言(默认双语字幕, 每次切换至中文/日语/双语)"),
+    ("s", "切换播放速度"),
     ("q", "关闭应用"),
     ("\n\n● 模式/帮助", "\n"),
     ("h", "退出帮助页面"),
@@ -58,17 +61,11 @@ pub fn play(app: &App) -> Element<Message> {
             let lyric_2 = text(lyric_2).size(30).style(utils::text(utils::black()));
             column!(lyric_1, lyric_2)
         }
-        Lang::Chinese => {
-            let lyric = get_lyrics(app, Lang::Chinese).unwrap_or_default();
+        single_lang => {
+            let lyric = get_lyrics(app, single_lang).unwrap_or_default();
             let lyric = text(lyric).size(30).style(utils::text(utils::black()));
             column!(lyric)
         }
-        Lang::Japanese => {
-            let lyric = get_lyrics(app, Lang::Japanese).unwrap_or_default();
-            let lyric = text(lyric).size(30).style(utils::text(utils::black()));
-            column!(lyric)
-        }
-        _ => unimplemented!(),
     };
 
     let lyric = lyric.padding(40).align_items(Alignment::Center);
@@ -82,7 +79,7 @@ pub fn play(app: &App) -> Element<Message> {
     .on_release(Message::SeekAudio)
     .height(15)
     .width(600)
-    .style(theme::Slider::Custom(Box::new(utils::StyledSlider)));
+    .style(utils::StyledSlider::new());
 
     let right = column!(name, status_line, slider, lyric)
         .spacing(5)
@@ -148,37 +145,54 @@ pub fn confirm_quit(_app: &App) -> Element<Message> {
 }
 
 pub fn status_line(app: &App) -> Element<Message> {
+    const STATUS_LINE_SIZE: u16 = 20;
+
+    // volume
     let volume = format!("音量: {}%", (app.sink.volume() * 100.0) as i8);
-    let volume = text(volume).size(20).style(utils::text(utils::black()));
+    let volume = text(volume)
+        .size(STATUS_LINE_SIZE)
+        .style(utils::text(utils::black()));
 
-    let (minute, second) = {
-        let time = app.time.as_secs();
-        (time / 60, time % 60)
-    };
-    let (total_minute, total_second) = {
-        let total_time = app.current_source.total_duration().unwrap().as_secs();
-        (total_time / 60, total_time % 60)
+    // time
+    let time = {
+        let get_time = |secs| (secs / 60, secs % 60);
+
+        let (minute, second) = get_time(app.time.as_secs());
+        let (total_minute, total_second) =
+            get_time(app.current_source.total_duration().unwrap().as_secs());
+
+        let time = if minute != 0 {
+            format!(
+                "已播放: {}m{}s/{}m{}s",
+                minute, second, total_minute, total_second,
+            )
+        } else {
+            format!("已播放: {}s/{}m{}s", second, total_minute, total_second,)
+        };
+
+        text(time)
+            .size(STATUS_LINE_SIZE)
+            .style(utils::text(utils::black()))
     };
 
-    let time = if minute == 0 {
-        format!("已播放: {}s/{}m{}s", second, total_minute, total_second,)
-    } else {
-        format!(
-            "已播放: {}m{}s/{}m{}s",
-            minute, second, total_minute, total_second,
-        )
-    };
-
-    let time = text(time).size(20).style(utils::text(utils::black()));
+    // is_paused
     let is_paused = text(if app.sink.is_paused() {
         "暂停中"
     } else {
         "播放中"
     })
-    .size(20)
+    .size(STATUS_LINE_SIZE)
     .style(utils::text(utils::black()));
 
-    row!(time, volume, is_paused).spacing(30).into()
+    // speed
+    let speed = text(format!("速度: {:.1}", app.sink.speed())).size(STATUS_LINE_SIZE);
+    let speed = button(speed)
+        .on_press(Message::ToggleSpeed)
+        .padding(0)
+        .style(utils::StyledButton::new());
+    // let speed = Container::new(speed).
+
+    row!(time, volume, speed, is_paused).spacing(30).into()
 }
 
 fn get_help_text() -> &'static Vec<(String, String)> {

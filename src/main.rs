@@ -19,8 +19,6 @@ use iced::{Element, Font, Settings, Theme};
 use rodio::cpal::FromSample;
 use rodio::{Sink, Source};
 
-const UPDATE_INTERVAL_SEC: f32 = 0.1;
-
 fn main() -> iced::Result {
     App::run(Settings {
         fonts: vec![include_bytes!("../MapleMono-NF-CN-Regular.ttf").into()],
@@ -29,7 +27,7 @@ fn main() -> iced::Result {
         // default_font: Font::with_name("Sarasa Mono TC"),
         antialiasing: true,
         window: window::Settings {
-            size: Size::new(1280.0, 700.0),
+            size: Size::new(1280.0, 720.0),
             ..Default::default()
         },
         ..Default::default()
@@ -46,6 +44,8 @@ struct App {
     slider_value: f32,
     time: Duration,
     lang: Lang,
+    tick_secs: f32,
+    speed: f32,
 }
 
 impl Default for App {
@@ -62,6 +62,8 @@ impl Default for App {
 
         let time = Duration::ZERO;
         let slider_value = 0.0;
+        let tick_secs = 0.1;
+        let speed = 1.0;
 
         // audio::sample(current_source.clone());
 
@@ -84,6 +86,8 @@ impl Default for App {
             time,
             lang,
             slider_value,
+            tick_secs,
+            speed,
         }
     }
 }
@@ -95,8 +99,8 @@ impl App {
 
     fn update_time(&mut self) {
         if !self.sink.is_paused() {
-            self.time += Duration::from_secs_f32(UPDATE_INTERVAL_SEC);
-            self.slider_value += UPDATE_INTERVAL_SEC;
+            self.time += Duration::from_secs_f32(self.tick_secs * self.speed);
+            self.slider_value += self.tick_secs;
         }
 
         if !self.sink.is_paused() && self.time >= self.current_source.total_duration().unwrap() {
@@ -179,6 +183,17 @@ impl App {
             _ => unimplemented!(),
         }
     }
+
+    fn toggle_speed(&mut self) {
+        self.speed = match self.speed {
+            0.5 => 1.0,
+            1.0 => 1.5,
+            1.5 => 2.0,
+            2.0 => 0.5,
+            _ => unreachable!(),
+        };
+        self.sink.set_speed(self.speed);
+    }
 }
 
 impl Application for App {
@@ -206,8 +221,8 @@ impl Application for App {
             Some(msg)
         });
 
-        let time = iced::time::every(Duration::from_secs_f32(UPDATE_INTERVAL_SEC))
-            .map(|_| Message::UpdateTime);
+        let time =
+            iced::time::every(Duration::from_secs_f32(self.tick_secs)).map(|_| Message::UpdateTime);
 
         Subscription::batch([key, time])
     }
@@ -240,6 +255,7 @@ impl Application for App {
             Message::UpdateTime => self.update_time(),
             Message::SeekAudio => self.seek_audio(),
             Message::UpdateSlider(val) => self.slider_value = val,
+            Message::ToggleSpeed => self.toggle_speed(),
             _ => (),
         };
 
@@ -277,11 +293,12 @@ enum Message {
     },
     Quit,
     UpdateSlider(f32),
+    ToggleSpeed,
     UpdateTime,
     SeekAudio,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 enum Lang {
     All,
     Chinese,

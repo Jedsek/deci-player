@@ -34,6 +34,7 @@ fn handle_in_normal(key: Key<&str>, _modifiers: Modifiers) -> Message {
             "q" => Message::SwitchView(ViewMode::ConfirmQuit),
             "p" => Message::TogglePlay,
             "t" => Message::ToggleLang,
+            "s" => Message::ToggleSpeed,
             _ => Message::Nothing,
         }
     } else if let Key::Named(n) = key {
