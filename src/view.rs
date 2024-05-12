@@ -2,14 +2,11 @@ mod utils;
 
 use std::{fs, sync::OnceLock};
 
-use crate::{audio, config::Config, App, Lang, Message};
+use crate::{config::Config, App, Lang, Message};
 use iced::{
     alignment::Horizontal,
-    theme::{self, TextEditor},
-    widget::{
-        button, column, image, radio::StyleSheet, row, text, Column, Container, ProgressBar, Slider,
-    },
-    Alignment, Color, Element, Length,
+    widget::{button, column, image, row, text, Column, Container, Slider},
+    Alignment, Element, Length,
 };
 use iced_aw::floating_element;
 use iced_aw::floating_element::Anchor;

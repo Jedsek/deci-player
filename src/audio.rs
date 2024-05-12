@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use rodio::{source::Buffered, Decoder, OutputStream, Sink, Source};
+use rodio::{Decoder, OutputStream, Sink};
 use rustfft::{num_complex::Complex, FftPlanner};
 use std::{fs::File, io::BufReader, path::Path};
 
@@ -18,6 +18,7 @@ pub fn new_source(path: impl AsRef<Path>) -> TheSource {
     Decoder::new(source).unwrap()
 }
 
+#[allow(unused)]
 pub fn sample(source: TheSource) {
     let to_complex = |x| Complex::new(x as i64, 0);
     let to_mod = |x: Complex<i64>| x.re * x.re + x.im * x.im;

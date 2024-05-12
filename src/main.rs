@@ -1,22 +1,18 @@
-#![allow(unused, clippy::single_match)]
+#![allow(clippy::single_match)]
 
 mod audio;
 mod config;
 mod handle;
 mod view;
 
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
-use audio::TheSource;
 use config::Config;
 use handle::handle_key;
 use iced::advanced::graphics::core::SmolStr;
-use iced::advanced::graphics::text::cosmic_text::rustybuzz::ttf_parser::morx::Chain;
 use iced::keyboard::{Key, Modifiers};
-use iced::widget::shader::wgpu::core::device::ImplicitPipelineIds;
 use iced::{executor, keyboard, window, Application, Command, Size, Subscription};
 use iced::{Element, Font, Settings, Theme};
-use rodio::cpal::FromSample;
 use rodio::{Sink, Source};
 
 fn main() -> iced::Result {
@@ -303,5 +299,6 @@ enum Lang {
     All,
     Chinese,
     Japanese,
+    #[allow(dead_code)]
     English,
 }
